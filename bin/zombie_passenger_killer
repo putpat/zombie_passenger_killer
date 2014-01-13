@@ -26,6 +26,7 @@ BANNER
   opts.on("-h", "--help","Show this") { puts opts; exit }
   opts.on("-v", "--version","Show Version"){ puts version; exit }
   opts.on("-t", "--timing","Show timing on output") { options[:show_times]=true }
+  opts.on("-b", "--before [COMMAND]",String,"Run before killing") { |i| options[:before]=i }
 end.parse!
 
 $stdout.sync = true

@@ -15,6 +15,7 @@ module ZombiePassengerKiller
       @strace_time = 5
       @out = STDOUT
       @rvmsudo = options[:rvmsudo]
+      @before = options[:before]
     end
 
     def lurk
@@ -83,11 +84,27 @@ module ZombiePassengerKiller
     end
 
     def kill_zombie(pid)
+      # try to be as safe as possible
+      begin
+        before_kill(pid)
+      rescue Exception => e
+        puts e.message
+        puts e.backtrace.inspect
+      end
       log "Killing passenger process #{pid}"
       log get_strace(pid, @strace_time)
       Process.kill('TERM', pid) rescue nil
       sleep @grace_time # wait for it to die
       Process.kill('KILL', pid) rescue nil
+    end
+
+    def before_kill(pid)
+      if @before
+        log "Running before-kill script"
+        # replace pid wildcard
+        script = @before.gsub('PID',pid.to_s)
+        `#{script}`
+      end
     end
 
     def log(msg)
