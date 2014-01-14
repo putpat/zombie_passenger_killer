@@ -77,7 +77,8 @@ module ZombiePassengerKiller
     end
 
     def process_status
-      %x(ps -eo pid,pcpu,args|grep -v grep|egrep '#{@pattern}').split("\n").map do |line|
+      # exclude the grep itself, the passenger killer and then egrep the pattern.
+      %x(ps -eo pid,pcpu,args|grep -v grep|grep -v zombie_passenger_killer|egrep '#{@pattern}').split("\n").map do |line|
          values = line.strip.split[0..1]
          {:pid => values.first.to_i, :cpu => values.last.to_f}
       end
